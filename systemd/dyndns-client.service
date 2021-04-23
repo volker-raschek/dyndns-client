@@ -1,0 +1,13 @@
+[Unit]
+Description=dyndns-client
+Requires=network-online.target time-sync.target
+After=network-online.target time-sync.target
+
+[Service]
+Type=simple
+Environment=DYNDNS_CLIENT_LOGGER_LEVEL=INFO
+ExecStart=/usr/bin/dyndns-client
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
