@@ -7,7 +7,7 @@ PREFIX     ?= /usr/local
 EXECUTABLE := dyndns-client
 
 # CONTAINER_RUNTIME
-CONTAINER_RUNTIME ?= $(shell which docker)
+CONTAINER_RUNTIME ?= $(shell which podman)
 
 # BUILD_IMAGE
 BUILD_IMAGE_REGISTRY_HOST   := docker.io
