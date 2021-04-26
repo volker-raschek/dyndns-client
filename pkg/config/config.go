@@ -71,6 +71,14 @@ func Read(cnfFile string) (*types.Config, error) {
 		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 
+	if len(cnf.Ifaces) <= 0 {
+		defaultInterface, err := getDefaultInterfaceByIP()
+		if err != nil {
+			return nil, err
+		}
+		cnf.Ifaces = []string{defaultInterface.Name}
+	}
+
 	for _, iface := range cnf.Ifaces {
 		if _, err := net.InterfaceByName(iface); err != nil {
 			return nil, fmt.Errorf("unknown interface: %v", iface)
