@@ -12,3 +12,68 @@ steps:
     - push
     - pull_request
     - tag
+
+- name: build-image-latest
+  image: docker.io/volkerraschek/build-image:latest
+  commands:
+  - make CONTAINER_RUNTIME=docker container-image/build
+  volumes:
+  - name: docker_socket
+    path: /var/run/docker.sock
+  when:
+    branch:
+    - master
+
+- name: push-image-latest
+  image: docker.io/volkerraschek/build-image:latest
+  commands:
+  - make CONTAINER_RUNTIME=docker container-image/push
+  environment:
+    CONTAINER_IMAGE_REGISTRY_PASSWORD:
+      from_secret: container_image_registry_password
+  volumes:
+  - name: docker_socket
+    path: /var/run/docker.sock
+  when:
+    repo:
+    - volker.raschek/dyndns-client
+    branch:
+    - master
+
+- name: push-latest-commit
+  environment:
+    GIT_PUSH_SSH_KEY:
+      from_secret:
+        github_ssh_key
+  image: appleboy/drone-git-push:0.2.0-linux-amd64
+  settings:
+    remote: git@github.com:volker-raschek/dyndns-client.git
+    force: true
+  when:
+    repo:
+    - volker.raschek/dyndns-client
+    branch:
+    - master
+    event:
+    - push
+
+- name: notify
+  image: drillster/drone-email
+  environment:
+    PLUGIN_HOST:
+      from_secret: smtp_host
+    PLUGIN_USERNAME:
+      from_secret: smtp_username
+    PLUGIN_PASSWORD:
+      from_secret: smtp_password
+    PLUGIN_FROM:
+      from_secret: smtp_mail_address
+  when:
+    status:
+    - changed
+    - failure
+
+volumes:
+- name: docker_socket
+  host:
+    path: /var/run/docker.sock
