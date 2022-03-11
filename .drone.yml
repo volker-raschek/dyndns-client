@@ -69,7 +69,7 @@ steps:
   resources:
     limits:
       cpu: 250
-      memory: 250M
+      memory: 500M
 
 - name: email-notification
   environment:
