@@ -39,6 +39,7 @@ func GetDefaultConfiguration() (*types.Config, error) {
 func Read(cnfFile string) (*types.Config, error) {
 	// Load burned in configuration if config not available
 	if _, err := os.Stat(cnfFile); os.IsNotExist(err) {
+		// #nosec G301
 		if err := os.MkdirAll(filepath.Dir(cnfFile), 0755); err != nil {
 			return nil, fmt.Errorf("failed to create directory: %w", err)
 		}
@@ -57,11 +58,12 @@ func Read(cnfFile string) (*types.Config, error) {
 		return cnf, nil
 	}
 
+	// #nosec G304
 	f, err := os.Open(cnfFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	cnf := new(types.Config)
 	jsonDecoder := json.NewDecoder(f)
@@ -97,17 +99,19 @@ func Read(cnfFile string) (*types.Config, error) {
 // Write config into a file
 func Write(cnf *types.Config, cnfFile string) error {
 	if _, err := os.Stat(filepath.Dir(cnfFile)); os.IsNotExist(err) {
+		// #nosec G301
 		err := os.MkdirAll(filepath.Dir(cnfFile), 0755)
 		if err != nil {
 			return err
 		}
 	}
 
+	// #nosec G304
 	f, err := os.Create(cnfFile)
 	if err != nil {
 		return fmt.Errorf("failed to create file %v: %v", cnfFile, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	jsonEncoder := json.NewEncoder(f)
 	jsonEncoder.SetIndent("", "  ")

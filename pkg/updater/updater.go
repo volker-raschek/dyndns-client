@@ -46,6 +46,7 @@ func (u *NSUpdate) execute(ctx context.Context, nsUpdateCmd string) error {
 
 	errBuffer := new(bytes.Buffer)
 
+	// #nosec G204
 	cmd := exec.CommandContext(ctx, "nsupdate", "-y", fmt.Sprintf("%v:%v:%v", u.tsigKey.Algorithm, u.tsigKey.Name, u.tsigKey.Secret))
 	// cmd.Stdout = os.Stdout
 	cmd.Stderr = bufio.NewWriter(errBuffer)
