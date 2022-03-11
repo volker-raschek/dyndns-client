@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -10,7 +11,8 @@ import (
 )
 
 var (
-	version string
+	version    string
+	configPath string
 )
 
 func main() {
@@ -41,9 +43,11 @@ func main() {
 		})
 	}
 
+	flag.StringVar(&configPath, "config", "/etc/dyndns-client/config.json", "Path to json config")
+
 	log.Infof("version %v", version)
 
-	cnf, err := config.Read("/etc/dyndns-client/config.json")
+	cnf, err := config.Read(configPath)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
