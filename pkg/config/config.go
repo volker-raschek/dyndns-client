@@ -37,7 +37,6 @@ func GetDefaultConfiguration() (*types.Config, error) {
 
 // Read config from a file
 func Read(cnfFile string) (*types.Config, error) {
-
 	// Load burned in configuration if config not available
 	if _, err := os.Stat(cnfFile); os.IsNotExist(err) {
 		if err := os.MkdirAll(filepath.Dir(cnfFile), 0755); err != nil {

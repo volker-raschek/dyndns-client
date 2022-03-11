@@ -48,7 +48,7 @@ func Start(cnf *types.Config) {
 	for {
 		interfaces, err := netlink.LinkList()
 		if err != nil {
-			log.Fatal("%v", err.Error())
+			log.Fatalf("%v", err.Error())
 		}
 
 		select {
@@ -99,7 +99,7 @@ func Start(cnf *types.Config) {
 					interfaceLogger.Error(err.Error())
 				}
 			} else {
-				err = removeIPRecords(daemonCtx, interfaceLogger, updaters, cnf.Zones, recordType, update.LinkAddress.IP)
+				err = removeIPRecords(daemonCtx, interfaceLogger, updaters, cnf.Zones, recordType)
 				if err != nil {
 					interfaceLogger.Error(err.Error())
 				}
@@ -146,7 +146,6 @@ func searchInterfaceByIndex(index int, interfaces []netlink.Link) (netlink.Link,
 }
 
 func addIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]updater.Updater, zones map[string]*types.Zone, recordType string, ip net.IP) error {
-
 	var (
 		errorChannel = make(chan error, len(zones))
 		wg           = new(sync.WaitGroup)
@@ -166,7 +165,6 @@ func addIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]
 		wg.Add(1)
 
 		go func(ctx context.Context, zoneName string, hostname string, recordType string, ip net.IP, wg *sync.WaitGroup) {
-
 			zoneLogger := logEntry.WithFields(log.Fields{
 				"zone":     zoneName,
 				"hostname": hostname,
@@ -186,7 +184,6 @@ func addIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]
 			}
 
 			zoneLogger.Info("dns-record successfully updated")
-
 		}(ctx, zoneName, hostname, recordType, ip, wg)
 	}
 
@@ -203,7 +200,6 @@ func addIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]
 }
 
 func pruneRecords(ctx context.Context, updaters map[string]updater.Updater, zones map[string]*types.Zone) error {
-
 	var (
 		errorChannel = make(chan error, len(zones))
 		wg           = new(sync.WaitGroup)
@@ -250,8 +246,7 @@ func pruneRecords(ctx context.Context, updaters map[string]updater.Updater, zone
 	return nil
 }
 
-func removeIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]updater.Updater, zones map[string]*types.Zone, recordType string, ip net.IP) error {
-
+func removeIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[string]updater.Updater, zones map[string]*types.Zone, recordType string) error {
 	var (
 		errorChannel = make(chan error, len(zones))
 		wg           = new(sync.WaitGroup)
@@ -290,7 +285,6 @@ func removeIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[stri
 			}
 
 			zoneLogger.Info("dns-record successfully removed")
-
 		}(ctx, zoneName, hostname, recordType, wg)
 	}
 
@@ -309,7 +303,6 @@ func removeIPRecords(ctx context.Context, logEntry *log.Entry, updaters map[stri
 // verifyHostname returns a boolean if the hostname id valid. The hostname does
 // not contains any dot or local, localhost, localdomain.
 func verifyHostname(hostname string) bool {
-
 	if !validHostname.MatchString(hostname) {
 		return false
 	}

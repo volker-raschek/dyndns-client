@@ -16,7 +16,6 @@ var (
 )
 
 func main() {
-
 	switch os.Getenv("DYNDNS_CLIENT_LOGGER_LEVEL") {
 	case "DEBUG", "debug":
 		log.SetLevel(log.DebugLevel)
