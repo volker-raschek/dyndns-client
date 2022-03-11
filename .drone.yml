@@ -195,4 +195,4 @@ trigger:
   event:
   - push
   repo:
-  - volker-raschek/dyndns-client
+  - volker.raschek/dyndns-client
