@@ -22,8 +22,8 @@ steps:
   image: docker.io/golangci/golangci-lint:v1.44.2-alpine
   resources:
     limits:
-      cpu: 100
-      memory: 250M
+      cpu: 250
+      memory: 500M
 
 - name: email-notification
   environment:
