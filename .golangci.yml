@@ -1,0 +1,29 @@
+run:
+  skip-dirs:
+  - it
+  timeout: 10m
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+  # Default
+  - deadcode
+  - errcheck
+  - gosimple
+  - govet
+  - ineffassign
+  - staticcheck
+  - structcheck
+  - typecheck
+  - unused
+  - varcheck
+
+  # Additionally linters
+  - bodyclose
+  - misspell
+  - nilerr
+  - rowserrcheck
+  - sqlclosecheck
+  - unparam
+  - whitespace

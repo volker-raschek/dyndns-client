@@ -1,64 +1,29 @@
+---
 kind: pipeline
-type: docker
-name: amd64
+type: kubernetes
+name: linter
+
+platform:
+  os: linux
 
 steps:
-- name: build-linux-amd64
-  image: docker.io/volkerraschek/build-image:latest
+- name: markdown lint
   commands:
-  - make
-  when:
-    event:
-    - push
-    - pull_request
-    - tag
+  - markdownlint *.md
+  image: docker.io/volkerraschek/markdownlint:0.30.0
+  resources:
+    limits:
+      cpu: 50
+      memory: 50M
 
-- name: build-image-latest
-  image: docker.io/volkerraschek/build-image:latest
-  commands:
-  - make CONTAINER_RUNTIME=docker container-image/build
-  volumes:
-  - name: docker_socket
-    path: /var/run/docker.sock
-  when:
-    branch:
-    - master
+- name: golang-ci lint
+  image: docker.io/golangci/golangci-lint:1.44.2-alpine
+  resources:
+    limits:
+      cpu: 100
+      memory: 250M
 
-- name: push-image-latest
-  image: docker.io/volkerraschek/build-image:latest
-  commands:
-  - make CONTAINER_RUNTIME=docker container-image/push
-  environment:
-    CONTAINER_IMAGE_REGISTRY_PASSWORD:
-      from_secret: container_image_registry_password
-  volumes:
-  - name: docker_socket
-    path: /var/run/docker.sock
-  when:
-    repo:
-    - volker.raschek/dyndns-client
-    branch:
-    - master
-
-- name: push-latest-commit
-  environment:
-    GIT_PUSH_SSH_KEY:
-      from_secret:
-        github_ssh_key
-  image: appleboy/drone-git-push:0.2.0-linux-amd64
-  settings:
-    remote: git@github.com:volker-raschek/dyndns-client.git
-    force: true
-  when:
-    repo:
-    - volker.raschek/dyndns-client
-    branch:
-    - master
-    event:
-    - push
-
-- name: notify
-  image: drillster/drone-email
+- name: email-notification
   environment:
     PLUGIN_HOST:
       from_secret: smtp_host
@@ -68,12 +33,164 @@ steps:
       from_secret: smtp_password
     PLUGIN_FROM:
       from_secret: smtp_mail_address
+  image: docker.io/drillster/drone-email:latest
+  resources:
+    limits:
+      cpu: 50
+      memory: 25M
   when:
     status:
     - changed
     - failure
 
-volumes:
-- name: docker_socket
-  host:
-    path: /var/run/docker.sock
+trigger:
+  event:
+    exclude:
+    - tag
+
+---
+kind: pipeline
+type: kubernetes
+name: vulnerability-check
+
+depends_on:
+- linter
+
+platform:
+  os: linux
+
+steps:
+- name: gosec
+  commands:
+  - gosec ./...
+  image: docker.io/volkerraschek/gosec:2.9.4
+  resources:
+    limits:
+      cpu: 250
+      memory: 250M
+
+- name: email-notification
+  environment:
+    PLUGIN_HOST:
+      from_secret: smtp_host
+    PLUGIN_USERNAME:
+      from_secret: smtp_username
+    PLUGIN_PASSWORD:
+      from_secret: smtp_password
+    PLUGIN_FROM:
+      from_secret: smtp_mail_address
+  image: docker.io/drillster/drone-email:latest
+  resources:
+    limits:
+      cpu: 50
+      memory: 25M
+  when:
+    status:
+    - changed
+    - failure
+
+trigger:
+  event:
+    exclude:
+    - tag
+
+---
+kind: pipeline
+type: kubernetes
+name: unit-test-amd64
+
+depends_on:
+- linter
+
+platform:
+  arch: amd64
+
+steps:
+- name: unit-test
+  commands:
+  - go test -v ./...
+  image: docker.io/library/golang:1.17.6
+  resources:
+    limits:
+      cpu: 250
+      memory: 500M
+
+trigger:
+  event:
+    exclude:
+    - tag
+
+---
+kind: pipeline
+type: kubernetes
+name: unit-test-arm64
+
+depends_on:
+- linter
+
+platform:
+  arch: arm64
+
+steps:
+- name: unit-test
+  commands:
+  - go test -v ./...
+  image: docker.io/library/golang:1.17.6
+  resources:
+    limits:
+      cpu: 250
+      memory: 500M
+
+trigger:
+  event:
+    exclude:
+    - tag
+
+---
+kind: pipeline
+type: kubernetes
+name: sync
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: github
+  image: docker.io/appleboy/drone-git-push:latest
+  resources:
+    limits:
+      cpu: 50
+      memory: 25M
+  settings:
+    branch: master
+    remote: ssh://git@github.com/volker-raschek/dyndns-client.git
+    force: true
+    ssh_key:
+      from_secret: ssh_key
+
+- name: email-notification
+  environment:
+    PLUGIN_HOST:
+      from_secret: smtp_host
+    PLUGIN_USERNAME:
+      from_secret: smtp_username
+    PLUGIN_PASSWORD:
+      from_secret: smtp_password
+    PLUGIN_FROM:
+      from_secret: smtp_mail_address
+  image: docker.io/drillster/drone-email:latest
+  resources:
+    limits:
+      cpu: 50
+      memory: 25M
+  when:
+    status:
+    - changed
+    - failure
+
+trigger:
+  event:
+  - push
+  repo:
+  - volker-raschek/dyndns-client
