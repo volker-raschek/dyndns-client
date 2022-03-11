@@ -1,38 +1,24 @@
 # VERSION
 VERSION ?= $(shell git describe --abbrev=0)+hash.$(shell git rev-parse --short HEAD)
 
-DESTDIR    ?=
-PREFIX     ?= /usr/local
+DESTDIR ?=
+PREFIX ?= /usr/local
 EXECUTABLE := dyndns-client
 
 # BINARIES
 # ==============================================================================
-${EXECUTABLE}: clean bin/tmp/${EXECUTABLE}
+all: ${EXECUTABLE}
 
-bin/linux/amd64/$(EXECUTABLE):
+${EXECUTABLE}:
 	CGO_ENABLED=0 \
-	GONOPROXY=$(shell go env GONOPROXY) \
-	GONOSUMDB=$(shell go env GONOSUMDB) \
 	GOPRIVATE=$(shell go env GOPRIVATE) \
 	GOPROXY=$(shell go env GOPROXY) \
-	GOSUMDB=$(shell go env GOSUMDB) \
-	GOOS=linux \
-	GOARCH=amd64 \
-		go build -ldflags "-X main.version=${VERSION:v%=%}" -o ${@}
-
-bin/tmp/${EXECUTABLE}:
-	CGO_ENABLED=0 \
-	GONOPROXY=$(shell go env GONOPROXY) \
-	GONOSUMDB=$(shell go env GONOSUMDB) \
-	GOPRIVATE=$(shell go env GOPRIVATE) \
-	GOPROXY=$(shell go env GOPROXY) \
-	GOSUMDB=$(shell go env GOSUMDB) \
 		go build -ldflags "-X main.version=${VERSION:v%=%}" -o ${@}
 
 # TEST
 # ==============================================================================
 PHONY+=test
-test: clean bin/tmp/${EXECUTABLE}
+test: clean ${EXECUTABLE}
 	go test -v ./pkg/...
 
 # CLEAN
@@ -45,9 +31,9 @@ clean:
 # UN/INSTALL
 # ==============================================================================
 PHONY+=install
-install: bin/tmp/${EXECUTABLE}
+install: ${EXECUTABLE}
 	install --directory ${DESTDIR}${PREFIX}/bin
-	install --mode 755 bin/tmp/${EXECUTABLE} ${DESTDIR}${PREFIX}/bin/${EXECUTABLE}
+	install --mode 755 ${EXECUTABLE} ${DESTDIR}${PREFIX}/bin/${EXECUTABLE}
 
 	install --directory ${DESTDIR}/usr/lib/systemd/system
 	install --mode 644 systemd/${EXECUTABLE}.service ${DESTDIR}/usr/lib/systemd/system
