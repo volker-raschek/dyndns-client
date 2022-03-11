@@ -65,7 +65,7 @@ steps:
 - name: gosec
   commands:
   - gosec ./...
-  image: docker.io/volkerraschek/gosec:2.9.4
+  image: docker.io/volkerraschek/gosec:2.9.6
   resources:
     limits:
       cpu: 250
