@@ -130,7 +130,6 @@ install: bin/tmp/${EXECUTABLE}
 
 	install --directory ${DESTDIR}/usr/lib/systemd/system
 	install --mode 644 systemd/${EXECUTABLE}.service ${DESTDIR}/usr/lib/systemd/system
-	install --mode 644 systemd/${EXECUTABLE}-docker.service ${DESTDIR}/usr/lib/systemd/system
 
 	install --directory ${DESTDIR}/usr/share/licenses/${EXECUTABLE}
 	install --mode 644 LICENSE ${DESTDIR}/usr/share/licenses/${EXECUTABLE}/LICENSE
@@ -140,7 +139,6 @@ uninstall:
 	-rm --recursive --force \
 		${DESTDIR}${PREFIX}/bin/${EXECUTABLE} \
 		${DESTDIR}/usr/lib/systemd/system/${EXECUTABLE}.service \
-		${DESTDIR}/usr/lib/systemd/system/${EXECUTABLE}-docker.service \
 		${DESTDIR}/usr/share/licenses/${EXECUTABLE}/LICENSE
 
 # PHONY
