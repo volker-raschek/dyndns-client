@@ -3,9 +3,6 @@ kind: pipeline
 type: kubernetes
 name: linter
 
-platform:
-  os: linux
-
 steps:
 - name: markdown lint
   commands:
@@ -13,8 +10,8 @@ steps:
   image: docker.io/volkerraschek/markdownlint:0.32.2
   resources:
     limits:
-      cpu: 50
-      memory: 50M
+      cpu: 150
+      memory: 150M
 
 - name: golangci lint
   commands:
@@ -22,70 +19,26 @@ steps:
   image: docker.io/golangci/golangci-lint:v1.50.1-alpine
   resources:
     limits:
-      cpu: 250
-      memory: 500M
+      cpu: 500
+      memory: 1G
 
 - name: email-notification
   environment:
-    PLUGIN_HOST:
+    SMTP_FROM_ADDRESS:
+      from_secret: smtp_from_address
+    SMTP_FROM_NAME:
+      from_secret: smtp_from_name
+    SMTP_HOST:
       from_secret: smtp_host
-    PLUGIN_USERNAME:
+    SMTP_USERNAME:
       from_secret: smtp_username
-    PLUGIN_PASSWORD:
+    SMTP_PASSWORD:
       from_secret: smtp_password
-    PLUGIN_FROM:
-      from_secret: smtp_mail_address
-  image: docker.io/drillster/drone-email:latest
+  image: docker.io/volkerraschek/drone-email:0.1.1
   resources:
     limits:
-      cpu: 50
-      memory: 25M
-  when:
-    status:
-    - changed
-    - failure
-
-trigger:
-  event:
-    exclude:
-    - tag
-
----
-kind: pipeline
-type: kubernetes
-name: vulnerability-check
-
-depends_on:
-- linter
-
-platform:
-  os: linux
-
-steps:
-- name: gosec
-  commands:
-  - gosec ./...
-  image: docker.io/volkerraschek/gosec:2.14.0
-  resources:
-    limits:
-      cpu: 250
-      memory: 500M
-
-- name: email-notification
-  environment:
-    PLUGIN_HOST:
-      from_secret: smtp_host
-    PLUGIN_USERNAME:
-      from_secret: smtp_username
-    PLUGIN_PASSWORD:
-      from_secret: smtp_password
-    PLUGIN_FROM:
-      from_secret: smtp_mail_address
-  image: docker.io/drillster/drone-email:latest
-  resources:
-    limits:
-      cpu: 50
-      memory: 25M
+      cpu: 150
+      memory: 150M
   when:
     status:
     - changed
@@ -104,8 +57,8 @@ name: unit-test-amd64
 depends_on:
 - linter
 
-platform:
-  arch: amd64
+node_selector:
+  kubernetes.io/arch: amd64
 
 steps:
 - name: unit-test
@@ -130,8 +83,8 @@ name: unit-test-arm64
 depends_on:
 - linter
 
-platform:
-  arch: arm64
+node_selector:
+  kubernetes.io/arch: arm64
 
 steps:
 - name: unit-test
@@ -153,9 +106,8 @@ kind: pipeline
 type: kubernetes
 name: sync
 
-platform:
-  os: linux
-  arch: amd64
+node_selector:
+  kubernetes.io/arch: amd64
 
 steps:
 - name: github
@@ -173,19 +125,21 @@ steps:
 
 - name: email-notification
   environment:
-    PLUGIN_HOST:
+    SMTP_FROM_ADDRESS:
+      from_secret: smtp_from_address
+    SMTP_FROM_NAME:
+      from_secret: smtp_from_name
+    SMTP_HOST:
       from_secret: smtp_host
-    PLUGIN_USERNAME:
+    SMTP_USERNAME:
       from_secret: smtp_username
-    PLUGIN_PASSWORD:
+    SMTP_PASSWORD:
       from_secret: smtp_password
-    PLUGIN_FROM:
-      from_secret: smtp_mail_address
-  image: docker.io/drillster/drone-email:latest
+  image: docker.io/volkerraschek/drone-email:0.1.1
   resources:
     limits:
-      cpu: 50
-      memory: 25M
+      cpu: 150
+      memory: 150M
   when:
     status:
     - changed
