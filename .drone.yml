@@ -3,7 +3,13 @@ kind: pipeline
 type: kubernetes
 name: linter
 
+clone:
+  disable: true
+
 steps:
+- name: clone
+  image: git.cryptic.systems/volker.raschek/git:1.2.1
+
 - name: markdown lint
   commands:
   - markdownlint *.md
@@ -54,6 +60,9 @@ kind: pipeline
 type: kubernetes
 name: unit-test-amd64
 
+clone:
+  disable: true
+
 depends_on:
 - linter
 
@@ -61,6 +70,9 @@ node_selector:
   kubernetes.io/arch: amd64
 
 steps:
+- name: clone
+  image: git.cryptic.systems/volker.raschek/git:1.2.1
+
 - name: unit-test
   commands:
   - go test -v ./...
@@ -80,6 +92,9 @@ kind: pipeline
 type: kubernetes
 name: unit-test-arm64
 
+clone:
+  disable: true
+
 depends_on:
 - linter
 
@@ -87,6 +102,9 @@ node_selector:
   kubernetes.io/arch: arm64
 
 steps:
+- name: clone
+  image: git.cryptic.systems/volker.raschek/git:1.2.1
+
 - name: unit-test
   commands:
   - go test -v ./...
@@ -106,10 +124,16 @@ kind: pipeline
 type: kubernetes
 name: sync
 
+clone:
+  disable: true
+
 node_selector:
   kubernetes.io/arch: amd64
 
 steps:
+- name: clone
+  image: git.cryptic.systems/volker.raschek/git:1.2.1
+
 - name: github
   image: docker.io/appleboy/drone-git-push:latest
   resources:
