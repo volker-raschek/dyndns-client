@@ -1,6 +1,8 @@
-run:
-  skip-dirs:
+issues:
+  exclude-dirs:
   - it
+  
+run:
   timeout: 10m
   tests: true
 
