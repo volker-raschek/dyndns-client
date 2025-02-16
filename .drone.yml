@@ -22,7 +22,7 @@ steps:
 - name: golangci lint
   commands:
   - golangci-lint run
-  image: docker.io/golangci/golangci-lint:v1.63.4-alpine
+  image: docker.io/golangci/golangci-lint:v1.64.5-alpine
   resources:
     limits:
       cpu: 500
