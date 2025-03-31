@@ -1,33 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "assigneesFromCodeOwners": true,
-  "labels": [ "renovate" ],
-  "packageRules": [
-    {
-      "description": "Automatically update minor and patch versions of used drone-ci images",
-      "addLabels": [ "renovate/droneci", "renovate/automerge" ],
-      "automerge": true,
-      "matchManagers": "droneci",
-      "matchUpdateTypes": [ "minor", "patch"]
-    },
-    {
-      "description": "Automatically update minor and patch versions of go modules",
-      "addLabels": [ "renovate/gomod", "renovate/automerge" ],
-      "automerge": true,
-      "matchManagers": [ "gomod" ],
-      "matchUpdateTypes": [ "minor", "patch" ]
-    },
-    {
-      "description": "Prepare MR for major update minor of go modules",
-      "addLabels": [ "renovate/gomod" ],
-      "automerge": false,
-      "matchManagers": [ "gomod" ],
-      "matchUpdateTypes": [ "major" ]
-    }
-  ],
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
-  "rebaseLabel": "renovate/rebase",
-  "rebaseWhen": "behind-base-branch"
+  "extends": [
+    "local>volker.raschek/renovate-config:default#master",
+    "local>volker.raschek/renovate-config:container#master",
+    "local>volker.raschek/renovate-config:actions#master",
+    "local>volker.raschek/renovate-config:golang#master",
+    "local>volker.raschek/renovate-config:regexp#master"
+  ]
 }
