@@ -13,7 +13,7 @@ steps:
 - name: markdown lint
   commands:
   - markdownlint *.md
-  image: git.cryptic.systems/volker.raschek/markdownlint:0.43.0
+  image: git.cryptic.systems/volker.raschek/markdownlint:0.44.0
   resources:
     limits:
       cpu: 150
@@ -76,7 +76,7 @@ steps:
 - name: unit-test
   commands:
   - go test -v ./...
-  image: docker.io/library/golang:1.24.1
+  image: docker.io/library/golang:1.24.2
   resources:
     limits:
       cpu: 250
@@ -112,7 +112,7 @@ steps:
 - name: unit-test
   commands:
   - go test -v ./...
-  image: docker.io/library/golang:1.24.1
+  image: docker.io/library/golang:1.24.2
   # resources:
   #   limits:
   #     cpu: 250
