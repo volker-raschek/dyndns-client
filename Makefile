@@ -17,8 +17,8 @@ ${EXECUTABLE}:
 
 # TEST
 # ==============================================================================
-PHONY+=test
-test: clean ${EXECUTABLE}
+PHONY+=test/unit
+test/unit: clean ${EXECUTABLE}
 	go test -v ./pkg/...
 
 # CLEAN
