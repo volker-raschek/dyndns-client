@@ -1,7 +1,5 @@
 # dyndns-client
 
-[![Build Status](https://drone.cryptic.systems/api/badges/volker.raschek/dyndns-client/status.svg)](https://drone.cryptic.systems/volker.raschek/dyndns-client)
-
 dyndns-client is a Daemon to listen on interface notifications produced by the linux
 kernel of a client machine to update one or more DNS zones.
 
