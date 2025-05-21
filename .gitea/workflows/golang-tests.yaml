@@ -1,0 +1,21 @@
+name: Golang Tests
+
+on:
+  pull_request:
+    types: [ "opened", "reopened", "synchronize" ]
+  push:
+    branches: [ '**' ]
+    tags-ignore: [ '**' ]
+
+jobs:
+  unittest:
+    runs-on:
+    - ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.2.2
+    - uses: actions/setup-go@v5.5.0
+      with:
+        go-version: stable
+    - env:
+        GOPROXY: ${{ vars.GOPROXY }}
+      run: make test/unit

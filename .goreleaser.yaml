@@ -1,0 +1,154 @@
+project_name: dyndns-client
+
+archives:
+- formats: [ "tar.xz" ]
+  files:
+  - README.md
+  - LICENSE
+
+before:
+  hooks:
+  - go mod tidy
+
+builds:
+- main: main.go
+  binary: >-
+    {{ .ProjectName }}-
+    {{- .Version }}-
+    {{- .Os }}-
+    {{- if eq .Arch "amd64" }}amd64
+    {{- else if eq .Arch "amd64_v1" }}amd64
+    {{- else }}{{ .Arch }}{{ end }}
+    {{- if .Arm }}-{{ .Arm }}{{ end }}
+  env:
+  - CGO_ENABLED=0
+  - GONOSUMDB={{ .Env.GONOSUMDB }}
+  - GOPROXY={{ .Env.GOPROXY }}
+  goos:
+  - linux
+  goarch:
+  - amd64
+  - arm
+  - arm64
+  goarm:
+  - "6"
+  - "7"
+  flags:
+  - -trimpath
+  ldflags:
+  - -s -w -X 'main.version={{ trimprefix .Tag "v" }}'
+
+changelog:
+  filters:
+    exclude:
+    - '^chore'
+    - '^docs'
+    - '^test'
+    - Merge pull request
+    - Merge branch
+    - go mod tidy
+  format: "{{.SHA}}: {{.Message}} (@{{.AuthorUsername}})"
+  groups:
+  - title: Features
+    regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+    order: 0
+  - title: "Bug fixes"
+    regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+    order: 1
+  - title: Others
+    order: 999
+  sort: asc
+  use: git
+
+dockers:
+- build_flag_templates:
+  - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+  - --label=org.opencontainers.image.description={{ .ProjectName }}
+  - --label=org.opencontainers.image.documentation={{ .ProjectName }}
+  - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - --label=org.opencontainers.image.source={{ .GitURL }}
+  - --label=org.opencontainers.image.title={{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://git.cryptic.systems/volker.raschek/{{ .ProjectName }}
+  - --label=org.opencontainers.image.version={{ trimprefix .Tag "v" }}
+  - --platform=linux/amd64
+  - --pull
+  dockerfile: Dockerfile
+  goarch: amd64
+  goos: linux
+  image_templates:
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-amd64'
+  skip_push: false
+  use: buildx
+
+- build_flag_templates:
+  - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+  - --label=org.opencontainers.image.description={{ .ProjectName }}
+  - --label=org.opencontainers.image.documentation={{ .ProjectName }}
+  - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - --label=org.opencontainers.image.source={{ .GitURL }}
+  - --label=org.opencontainers.image.title={{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://git.cryptic.systems/volker.raschek/{{ .ProjectName }}
+  - --label=org.opencontainers.image.version={{ trimprefix .Tag "v" }}
+  - --platform=linux/arm/v6
+  - --pull
+  dockerfile: Dockerfile
+  goarch: arm
+  goarm: "6"
+  goos: linux
+  image_templates:
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm-v6'
+  skip_push: false
+  use: buildx
+
+- build_flag_templates:
+  - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+  - --label=org.opencontainers.image.description={{ .ProjectName }}
+  - --label=org.opencontainers.image.documentation={{ .ProjectName }}
+  - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - --label=org.opencontainers.image.source={{ .GitURL }}
+  - --label=org.opencontainers.image.title={{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://git.cryptic.systems/volker.raschek/{{ .ProjectName }}
+  - --label=org.opencontainers.image.version={{ trimprefix .Tag "v" }}
+  - --platform=linux/arm/v7
+  - --pull
+  dockerfile: Dockerfile
+  goarch: arm
+  goarm: "7"
+  goos: linux
+  image_templates:
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm-v7'
+  skip_push: false
+  use: buildx
+
+- build_flag_templates:
+  - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+  - --label=org.opencontainers.image.description={{ .ProjectName }}
+  - --label=org.opencontainers.image.documentation={{ .ProjectName }}
+  - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - --label=org.opencontainers.image.source={{ .GitURL }}
+  - --label=org.opencontainers.image.title={{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://git.cryptic.systems/volker.raschek/{{ .ProjectName }}
+  - --label=org.opencontainers.image.version={{ trimprefix .Tag "v" }}
+  - --platform=linux/arm64
+  - --pull
+  dockerfile: Dockerfile
+  goarch: arm64
+  goos: linux
+  image_templates:
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm64'
+  skip_push: false
+  use: buildx
+
+docker_manifests:
+- name_template: 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}'
+  image_templates:
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-amd64'
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm-v6'
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm-v7'
+  - 'git.cryptic.systems/volker.raschek/{{ .ProjectName }}:{{ trimprefix .Tag "v" }}-arm64'
+
+gitea_urls:
+  api: https://git.cryptic.systems/api/v1
+  download: https://git.cryptic.systems
+
+version: 2

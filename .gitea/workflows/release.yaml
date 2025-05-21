@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags: [ '**' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on:
+    - ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.2.2
+    - uses: docker/setup-qemu-action@v3.6.0
+    - uses: actions/setup-go@v5.5.0
+      with:
+        go-version: stable
+    - uses: docker/login-action@v3.4.0
+      with:
+        registry: git.cryptic.systems
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GIT_CRYPTIC_SYSTEMS_PACKAGE_REGISTRY_TOKEN }}
+    - env:
+        GITEA_TOKEN: ${{ secrets.GIT_CRYPTIC_SYSTEMS_PACKAGE_REGISTRY_TOKEN }}
+        GONOSUMDB: ${{ vars.GONOSUMDB }}
+        GOPROXY: ${{ vars.GOPROXY }}
+      uses: goreleaser/goreleaser-action@v6.3.0
+      with:
+        version: "~> v2"
+        args: release --clean
+
+  sync-to-hub-docker-io:
+    needs:
+    - release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Copy images to docker.io
+      run: |
+        TAG=$(echo ${{ github.ref_name }} | sed 's/v//gm')
+
+        apt-get update --yes
+        apt-get install --yes skopeo
+        skopeo copy \
+          --all \
+          --dest-password ${{ secrets.DOCKER_IO_PASSWORD }} \
+          --dest-username ${{ secrets.DOCKER_IO_USERNAME }} \
+          --src-password ${{ secrets.GIT_CRYPTIC_SYSTEMS_PACKAGE_REGISTRY_TOKEN }} \
+          --src-username volker.raschek \
+            docker://git.cryptic.systems/volker.raschek/dyndns-client:${TAG} \
+            docker://docker.io/volkerraschek/dyndns-client:${TAG}
