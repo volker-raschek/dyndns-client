@@ -6,6 +6,7 @@ on:
   push:
     branches: [ '**' ]
     tags-ignore: [ '**' ]
+  workflow_dispatch: {}
 
 jobs:
   unittest:
