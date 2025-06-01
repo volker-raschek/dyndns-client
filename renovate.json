@@ -10,7 +10,7 @@
   "packageRules": [
     {
       "automerge": false,
-      "enable": false,
+      "enabled": false,
       "matchDepNames": [
         "^github.com/asaskevich/govalidator"
       ]
