@@ -1,4 +1,4 @@
-name: Release
+name: "Release"
 
 on:
   push:
@@ -9,15 +9,15 @@ permissions:
 
 jobs:
   release:
-    runs-on:
-    - ubuntu-latest
+    name: "Release application"
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@v4.3.0
     - uses: docker/setup-qemu-action@v3.6.0
     - uses: actions/setup-go@v5.5.0
       with:
         go-version: stable
-    - uses: docker/login-action@v3.4.0
+    - uses: docker/login-action@v3.5.0
       with:
         registry: git.cryptic.systems
         username: ${{ github.repository_owner }}
@@ -28,10 +28,11 @@ jobs:
         GOPROXY: ${{ vars.GOPROXY }}
       uses: goreleaser/goreleaser-action@v6.3.0
       with:
-        version: "~> v2"
+        version: v2.11.2 # renovate: datasource=github-releases depName=goreleaser/goreleaser
         args: release --clean
 
   sync-to-hub-docker-io:
+    name: "Upload Images to docker.io"
     needs:
     - release
     runs-on: ubuntu-latest

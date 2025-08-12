@@ -1,0 +1,13 @@
+version: "2"
+linters:
+  default: standard
+  enable:
+  - errname
+  - gosec
+
+  exclusions:
+    rules: []
+    warn-unused: true
+
+run:
+  tests: true

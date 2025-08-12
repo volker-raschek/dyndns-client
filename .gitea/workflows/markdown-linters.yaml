@@ -1,19 +1,19 @@
-name: Markdown linter
+name: "Lint Markdown files"
 
 on:
   pull_request:
     types: [ "opened", "reopened", "synchronize" ]
   push:
-    branches: [ '**' ]
-    tags-ignore: [ '**' ]
+    branches: [ '*' ]
+    tags-ignore: [ '*' ]
   workflow_dispatch: {}
 
 jobs:
   markdown-lint:
-    runs-on:
-    - ubuntu-latest
+    name: "Run markdown linter"
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@v4.3.0
     - uses: DavidAnson/markdownlint-cli2-action@v20.0.0
       with:
         globs: '**/*.md'

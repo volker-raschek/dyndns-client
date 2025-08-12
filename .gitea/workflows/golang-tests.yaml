@@ -1,4 +1,4 @@
-name: Golang Tests
+name: "Run Golang tests"
 
 on:
   pull_request:
@@ -6,16 +6,34 @@ on:
   push:
     branches: [ '**' ]
     tags-ignore: [ '**' ]
+  workflow_dispatch: {}
 
 jobs:
-  unittest:
+  # integration-test:
+  #   name: "Run integration tests"
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       go: [ stable ]
+  #       os: [ ubuntu-latest-amd64, ubuntu-latest-arm64 ]
+  #   steps:
+  #   - uses: actions/checkout@v4.3.0
+  #   - uses: actions/setup-go@v5.5.0
+  #     with:
+  #       go-version: ${{ matrix.go }}
+  #   - env:
+  #       GOPROXY: ${{ vars.GOPROXY }}
+  #     run: make test/integration
+
+  unit-test:
+    name: "Run unit tests"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         go: [ stable ]
         os: [ ubuntu-latest-amd64, ubuntu-latest-arm64 ]
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@v4.3.0
     - uses: actions/setup-go@v5.5.0
       with:
         go-version: ${{ matrix.go }}
