@@ -28,7 +28,7 @@ jobs:
         GITEA_TOKEN: ${{ secrets.GIT_CRYPTIC_SYSTEMS_PACKAGE_REGISTRY_TOKEN }}
         GONOSUMDB: ${{ vars.GONOSUMDB }}
         GOPROXY: ${{ vars.GOPROXY }}
-      uses: goreleaser/goreleaser-action@v7.1.0
+      uses: goreleaser/goreleaser-action@v7.2.1
       with:
         version: v2.15.4 # renovate: datasource=github-releases depName=goreleaser/goreleaser
         args: release --clean
